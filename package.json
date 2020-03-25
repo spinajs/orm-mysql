@@ -1,6 +1,6 @@
 {
   "name": "@spinajs/orm-mysql",
-  "version": "1.0.21",
+  "version": "1.0.1",
   "description": "SpinaJS orm mysql support. Contains mysql driver.",
   "main": "lib/index.js",
   "private": false,
