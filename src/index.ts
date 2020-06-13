@@ -1,14 +1,9 @@
 import {
   IColumnDescriptor,
   QueryContext,
-  ColumnQueryCompiler,
-  TableQueryCompiler,
   OrmDriver,
   QueryBuilder,
   TransactionCallback,
-  OrderByQueryCompiler,
-  JoinStatement,
-  OnDuplicateQueryCompiler,
 } from '@spinajs/orm';
 import * as mysql from "mysql";
 import { SqlDriver } from '@spinajs/orm-sql';
