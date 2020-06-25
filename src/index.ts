@@ -25,6 +25,7 @@ export class MysqlOrmDriver extends SqlDriver {
     super.execute(stmt, queryParams, queryContext);
 
     return new Promise((res, rej) => {
+
       switch (queryContext) {
         case QueryContext.Update:
         case QueryContext.Delete:
@@ -38,7 +39,12 @@ export class MysqlOrmDriver extends SqlDriver {
               return;
             }
 
-            res(result);
+            if(queryContext === QueryContext.Insert){
+              res(result.insertId);
+            }else{
+              res(result);
+            }
+            
           })
           break;
       }
@@ -141,7 +147,7 @@ export class MysqlOrmDriver extends SqlDriver {
       'COLUMN_KEY'
     ];
 
-    const tblInfo = (await this.execute(`information_schema.columns SELECT ${select.join(",")} WHERE table_schema = '${tableSchema}' AND TABLE_NAME = '${tableName}'`, null, QueryContext.Select)) as [];
+    const tblInfo = (await this.execute(`SELECT ${select.join(",")} FROM information_schema.columns  WHERE table_schema = '${tableSchema}' AND TABLE_NAME = '${tableName}'`, null, QueryContext.Select)) as [];
     const tblIndices = (await this.execute(`SHOW INDEX FROM ${tableName}`, null, QueryContext.Select)) as [];
 
     return tblInfo.map((r: any) => {
@@ -159,6 +165,7 @@ export class MysqlOrmDriver extends SqlDriver {
         Converter: null,
         Schema: _schema ? _schema : this.Options.Database,
         Unique: tblIndices.find((i : any) => i.Column_name === r.name && i.Non_unique === 0 ) !== undefined,
+        Uuid: false
       };
     });
   }
