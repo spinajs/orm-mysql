@@ -1,18 +1,10 @@
-import {
-  IColumnDescriptor,
-  QueryContext,
-  OrmDriver,
-  QueryBuilder,
-  TransactionCallback,
-} from '@spinajs/orm';
-import * as mysql from "mysql";
+import { IColumnDescriptor, QueryContext, OrmDriver, QueryBuilder, TransactionCallback } from '@spinajs/orm';
+import * as mysql from 'mysql';
 import { SqlDriver } from '@spinajs/orm-sql';
 import { Injectable, Container } from '@spinajs/di';
 
-
 @Injectable('orm-driver-mysql')
 export class MysqlOrmDriver extends SqlDriver {
-
   protected _connectionPool: mysql.Pool;
 
   public execute(stmt: string, params: any[], queryContext: QueryContext): Promise<any> {
@@ -25,7 +17,6 @@ export class MysqlOrmDriver extends SqlDriver {
     super.execute(stmt, queryParams, queryContext);
 
     return new Promise((res, rej) => {
-
       switch (queryContext) {
         case QueryContext.Update:
         case QueryContext.Delete:
@@ -39,27 +30,23 @@ export class MysqlOrmDriver extends SqlDriver {
               return;
             }
 
-            if(queryContext === QueryContext.Insert){
+            if (queryContext === QueryContext.Insert) {
               res(result.insertId);
-            }else{
+            } else {
               res(result);
             }
-            
-          })
+          });
           break;
       }
     });
   }
 
   public async ping(): Promise<boolean> {
-
-    const result = await this.execute("SELECT 1", [], QueryContext.Select);
+    const result = await this.execute('SELECT 1', [], QueryContext.Select);
     return result !== null || result !== undefined;
-
   }
 
   public async connect(): Promise<OrmDriver> {
-
     const { PoolLimit, Host, User, Password, Database, Encoding, Options } = this.Options;
 
     if (this._connectionPool != null) {
@@ -73,20 +60,18 @@ export class MysqlOrmDriver extends SqlDriver {
       password: Password,
       database: Database,
       charset: Encoding,
-      ...Options
+      ...Options,
     });
 
     return this;
   }
 
   public async disconnect(): Promise<OrmDriver> {
-
     return new Promise((resolve, reject) => {
-      this._connectionPool?.end((err) => {
+      this._connectionPool?.end(err => {
         if (err) {
           reject(err);
         } else {
-
           this._connectionPool = null;
           resolve(this);
         }
@@ -132,7 +117,6 @@ export class MysqlOrmDriver extends SqlDriver {
    * @returns {[] | null}
    */
   public async tableInfo(tableName: string, _schema?: string): Promise<IColumnDescriptor[]> {
-
     const tableSchema = _schema ? _schema : this.Options.Database;
     const select = [
       'COLUMN_NAME',
@@ -144,10 +128,16 @@ export class MysqlOrmDriver extends SqlDriver {
       'COLUMN_TYPE',
       'IS_NULLABLE',
       'EXTRA',
-      'COLUMN_KEY'
+      'COLUMN_KEY',
     ];
 
-    const tblInfo = (await this.execute(`SELECT ${select.join(",")} FROM information_schema.columns  WHERE table_schema = '${tableSchema}' AND TABLE_NAME = '${tableName}'`, null, QueryContext.Select)) as [];
+    const tblInfo = (await this.execute(
+      `SELECT ${select.join(
+        ',',
+      )} FROM information_schema.columns  WHERE table_schema = '${tableSchema}' AND TABLE_NAME = '${tableName}'`,
+      null,
+      QueryContext.Select,
+    )) as [];
     const tblIndices = (await this.execute(`SHOW INDEX FROM ${tableName}`, null, QueryContext.Select)) as [];
 
     return tblInfo.map((r: any) => {
@@ -158,14 +148,14 @@ export class MysqlOrmDriver extends SqlDriver {
         DefaultValue: r.COLUMN_DEFAULT,
         NativeType: r.COLUMN_TYPE,
         Unsigned: false,
-        Nullable: r.IS_NULLABLE === "YES",
+        Nullable: r.IS_NULLABLE === 'YES',
         PrimaryKey: r.COLUMN_KEY === 'PRI',
         AutoIncrement: r.EXTRA.includes('auto_increment'),
         Name: r.COLUMN_NAME,
         Converter: null,
         Schema: _schema ? _schema : this.Options.Database,
-        Unique: tblIndices.find((i : any) => i.Column_name === r.name && i.Non_unique === 0 ) !== undefined,
-        Uuid: false
+        Unique: tblIndices.find((i: any) => i.Column_name === r.name && i.Non_unique === 0) !== undefined,
+        Uuid: false,
       };
     });
   }
