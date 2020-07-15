@@ -38,9 +38,9 @@
   "homepage": "https://github.com/spinajs/orm-mysql#readme",
   "dependencies": {
     "@spinajs/configuration": "^1.0.5",
-    "@spinajs/di": "^1.0.7",
+    "@spinajs/di": "^1.0.19",
     "@spinajs/exceptions": "^1.0.0",
-    "@spinajs/log": "^1.0.2",
+    "@spinajs/log": "^1.0.8",
     "@spinajs/orm": "^1.0.31",
     "@spinajs/orm-sql": "^1.0.15",
     "lodash": "^4.17.15",

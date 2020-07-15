@@ -138,7 +138,7 @@ export class MysqlOrmDriver extends SqlDriver {
       null,
       QueryContext.Select,
     )) as [];
-    const tblIndices = (await this.execute(`SHOW INDEX FROM ${tableName}`, null, QueryContext.Select)) as [];
+    const tblIndices = (await this.execute(`SHOW INDEX FROM \`${tableName}\``, null, QueryContext.Select)) as [];
 
     return tblInfo.map((r: any) => {
       return {
@@ -153,6 +153,7 @@ export class MysqlOrmDriver extends SqlDriver {
         AutoIncrement: r.EXTRA.includes('auto_increment'),
         Name: r.COLUMN_NAME,
         Converter: null,
+        Ignore: false,
         Schema: _schema ? _schema : this.Options.Database,
         Unique: tblIndices.find((i: any) => i.Column_name === r.name && i.Non_unique === 0) !== undefined,
         Uuid: false,
